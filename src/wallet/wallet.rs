@@ -211,6 +211,24 @@ pub mod wallet {
             }
         }
     }
+    
+    /// Reshare: reconstruct the secret from existing shares and split into new shares.
+    /// Optionally deletes old share files and saves new ones.
+    pub fn reshare_mnemonic(new_n: u8, new_t: u8, required_shares: Option<usize>, clean_old: bool) -> Result<(String, Vec<String>)> {
+        // Step 1: Reconstruct the mnemonic from the required number of shares
+        let mnemonic = load_and_reconstruct_mnemonic(required_shares)?;
+        let dictionary = Bip39Dictionary::load("assets/bip39-en.txt")
+            .map_err(|e| eyre!("Failed to load dictionary: {}", e))?;
+        let secret = Bip39Secret::from_mnemonic(&mnemonic, &dictionary)?;
+
+        // Step 2: Optionally clean old shares
+        if clean_old {
+            let _ = clean_share_files();
+        }
+
+        // Step 3: Split into new shares and save
+        create_and_split_mnemonic(new_n, new_t, None)
+    }
 }
 
 #[cfg(test)]
