@@ -4,7 +4,7 @@
 use gf256::gf256;
 use rand::{CryptoRng, Rng, RngCore};
 
-use crate::shamir::{Random, ShamirPolynomial, ShamirSecretSharing, ShamirShare, Zero};
+use crate::cores::shamir::{Random, ShamirPolynomial, ShamirSecretSharing, ShamirShare, Zero};
 
 impl Zero for gf256 {
     fn zero() -> Self {
@@ -57,7 +57,7 @@ impl ShamirSecretSharing for gf256 {
 mod test {
     use gf256::gf256;
 
-    use crate::shamir;
+    use crate::cores::shamir;
 
     #[test]
     fn reconstruct() {

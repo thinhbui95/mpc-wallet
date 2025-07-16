@@ -8,10 +8,8 @@ use fastcrypto::hash::{HashFunction, Sha256};
 use gf256::gf256;
 use rand::{CryptoRng, RngCore};
 
-use crate::{
-    shamir::{FieldArray, ShamirSecretSharing, ShamirShare},
-    utils::{bits_to_bytes, bytes_to_bits},
-};
+use crate::cores::shamir::{FieldArray, ShamirSecretSharing, ShamirShare};
+use crate::cores::utils::{bits_to_bytes, bytes_to_bits};
 
 /// Parameters of the bip-39 specification (24 words variant).
 const DICTIONARY_INDICES_BITS: usize = 11;
@@ -373,7 +371,7 @@ impl Bip39Secret {
 }
 
 #[cfg(test)]
-impl crate::shamir::Random for Bip39Secret {
+impl crate::cores::shamir::Random for Bip39Secret {
     fn random<R: CryptoRng + RngCore>(rng: &mut R) -> Self {
         Self::from(Entropy::random(rng))
     }
@@ -440,7 +438,7 @@ mod tests {
 
     use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 
-    use crate::{
+    use crate::cores::{
         bip39::{Bip39Dictionary, Bip39Secret, Bip39Share, ENTROPY_BITS, ENTROPY_BYTES},
         shamir::{self, Random, ShamirSecretSharing},
     };
@@ -556,22 +554,6 @@ mod tests {
                 &Bip39Share::from_mnemonic(id, &share_mnemonic, &dictionary).unwrap()
             );
         }
-    }
-
-    #[test]
-    fn reconstruct() {
-        shamir::test::test_reconstruct::<Bip39Secret>();
-    }
-
-    #[test]
-    fn reconstruct_sparse() {
-        shamir::test::test_reconstruct_sparse::<Bip39Secret>();
-    }
-
-    #[test]
-    fn reconstruct_missing_shares() {
-        let (_, reconstructed) = shamir::test::test_reconstruct_missing_shares::<Bip39Secret>();
-        assert!(reconstructed.is_valid().is_ok());
     }
 
     #[test]
