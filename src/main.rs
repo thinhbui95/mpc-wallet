@@ -13,4 +13,11 @@ fn main() {
         Ok(mnemonic) => println!("Reconstructed mnemonic: {}", mnemonic),
         Err(e) => eprintln!("Error reconstructing mnemonic: {}", e),
     }
+
+    // Reshare to 7 shares with threshold 4, using any 3 existing shares, and clean old shares
+    let (mnemonic, new_shares) = wallet::reshare_mnemonic(7, 4, Some(3), true).unwrap();
+    println!("Reshared mnemonic: {}", mnemonic);
+    for (i, share) in new_shares.iter().enumerate() {
+        println!("New share {}: {}", i + 1, share);
+    }
 }
