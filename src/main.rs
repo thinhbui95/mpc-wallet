@@ -10,7 +10,7 @@ fn main() {
     //ui::create_wallet_ui();
     //let _ = wallet::load_and_reconstruct_mnemonic();
     // ui::reshare_wallet_ui();
-    // ui::reshare_wallet_ui();
+    //ui::reshare_wallet_ui();
     ui::interact_ui();
     // println!("🔐 MPC Wallet - Demo");
     // println!("Run the tests to see mnemonic splitting in action:");
