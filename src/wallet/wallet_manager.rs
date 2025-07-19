@@ -222,8 +222,6 @@ pub mod wallet {
             return Ok(());
         }
         
-        let mut deleted_count = 0;
-        
         for entry in fs::read_dir(FOLDER_PATH)
             .map_err(|e| eyre!("Failed to read directory {}: {}", FOLDER_PATH, e))? {
             
@@ -233,12 +231,9 @@ pub mod wallet {
             if path.is_file() && path.extension().map(|ext| ext == "txt").unwrap_or(false) {
                 fs::remove_file(&path)
                     .map_err(|e| eyre!("Failed to delete file {:?}: {}", path, e))?;
-                deleted_count += 1;
-                println!("Deleted: {:?}", path);
             }
         }
         
-        println!("Deleted {} share files", deleted_count);
         Ok(())
     }
     

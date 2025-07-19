@@ -95,7 +95,10 @@ pub mod ui_interface_for_wallet {
                         }
                     }
                 })
-                .button("Cancel", |s| s.quit()),
+                .button("Back to Menu", |s| {
+                            s.pop_layer();
+                            show_main_menu(s);
+                })
         );
 
         // Start the Cursive event loop
@@ -164,7 +167,10 @@ pub mod ui_interface_for_wallet {
                         }
                     }
                 })
-                .button("Cancel", |s| s.quit()),
+                .button("Back to Menu", |s| {
+                            s.pop_layer();
+                            show_main_menu(s);
+                })
         );
 
         // Start the Cursive event loop
@@ -192,7 +198,7 @@ pub mod ui_interface_for_wallet {
 
                 siv.add_layer(
                     Dialog::around(form)
-                        .title("ERC20 Token Interaction")
+                        .title("Token Interaction")
                         .button("Transfer Tokens", {
                             let provider = provider.clone();
                             move |s| {
@@ -367,14 +373,44 @@ pub mod ui_interface_for_wallet {
                                 });
                             }
                         })
-                        .button("Quit", |s| s.quit()),
+                        .button("Back to Menu", |s| {
+                            s.pop_layer();
+                            show_main_menu(s);
+                        })
                 );
                 // Start the Cursive event loop
                 siv.run();
             }
         }
     }
-   
+
+    pub fn main_wallet_ui() {
+        let mut siv = cursive::default();
+        show_main_menu(&mut siv);
+        siv.run();
+    }
+
+    fn show_main_menu(siv: &mut cursive::Cursive) {
+        siv.add_layer(
+            Dialog::text("Welcome to MPC Wallet!\n\nSelect an action:")
+                .title("MPC Wallet Main Menu")
+                .button("Create Wallet", |_s| {
+                    // Close the menu and open the create wallet UI
+                    cursive::Cursive::quit(_s);
+                    create_wallet_ui();
+                })
+                .button("Reshare Wallet", |_s| {
+                    cursive::Cursive::quit(_s);
+                    reshare_wallet_ui();
+                })
+                .button("Interact with Blockchain", |_s| {
+                    cursive::Cursive::quit(_s);
+                    interact_ui();
+                })
+                .button("Quit", |s| s.quit())
+        );
+    }
+
 }
 
 

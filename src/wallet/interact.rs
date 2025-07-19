@@ -63,7 +63,10 @@ pub mod evm {
         // connect the wallet to the provider
         let client = SignerMiddleware::new(provider, wallet);
         let contract_instance = MyToken::new(contract_address, Arc::new(client));
-        let call = contract_instance.transfer(to_address, amount);
+        let call = contract_instance
+            .transfer(to_address, amount)
+            .gas(4000000) // Set your desired gas limit here
+            .legacy(); // Use legacy transaction to avoid EIP-1559 error
         let pending_tx = call.send().await?;
         let receipt = pending_tx.await?.ok_or("Transaction failed")?;
         
