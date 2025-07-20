@@ -8,10 +8,9 @@ use ethers::providers::Middleware;
 use ethers::signers::Signer;
 
 pub mod ui_interface_for_wallet {
-
     use super::*;
 
-    pub fn create_wallet_ui() {
+    fn create_wallet_ui() {
         let mut siv = cursive::default(); // Creates the Cursive root
 
         // Create a vertical layout for the form
@@ -105,7 +104,7 @@ pub mod ui_interface_for_wallet {
         siv.run();
     }
 
-    pub fn reshare_wallet_ui() {
+    fn reshare_wallet_ui() {
         let mut siv = cursive::default(); // Creates the Cursive root
 
         // Create a vertical layout for the form
@@ -177,13 +176,13 @@ pub mod ui_interface_for_wallet {
         siv.run();
     }
 
-    pub fn interact_ui() {
+    fn interact_ui() {
         let content = fs::read_to_string("src/wallet/RPC").unwrap();
         for line in content.lines() {
             if let Some(url) = line.strip_prefix("RPC_URL=") {
                 let url = url.trim().to_string();
                 let mut siv = cursive::default();
-                let provider = evm::get_provider(&url);
+                let provider = fungible_token::get_provider(&url);
 
                 let form = LinearLayout::vertical()
                     .child(TextView::new("Interact with ERC20 Token"))
@@ -248,7 +247,7 @@ pub mod ui_interface_for_wallet {
                                                 .parse::<LocalWallet>().unwrap()
                                                 .with_chain_id(chain_id.as_u64());
 
-                                        match evm::transfer(provider, &contract_address, wallet, &address, amount.into()).await {
+                                        match fungible_token::transfer(provider, &contract_address, wallet, &address, amount.into()).await {
                                             Ok(receipt) => {
                                                 let tx_hash = receipt.transaction_hash;
                                                 let msg = format!(

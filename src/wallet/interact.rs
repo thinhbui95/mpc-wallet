@@ -1,4 +1,4 @@
-pub mod evm {
+pub mod fungible_token {
     use ethers::prelude::*;
     use ethers::{
         providers::{Provider, Http},

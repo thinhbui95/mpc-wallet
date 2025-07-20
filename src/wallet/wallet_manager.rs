@@ -1,14 +1,13 @@
 use std::{fs, path::Path, io::Write};
 use rand::{rngs::StdRng, SeedableRng};
 use eyre::{Result, eyre};
+use ethers::core::rand::seq::SliceRandom;
 
 use crate::cores::bip39::{Bip39Dictionary, Bip39Secret, Bip39Share};
 use crate::cores::shamir::ShamirSecretSharing;
 use crate::utils::*;
 
 pub mod wallet {
-    use ethers::core::rand::seq::SliceRandom;
-
     use super::*;
     
     const FOLDER_PATH: &str = "key_share";
@@ -217,7 +216,7 @@ pub mod wallet {
     }
     
     /// Delete all share files
-    pub fn clean_share_files() -> Result<()> {
+    fn clean_share_files() -> Result<()> {
         if !Path::new(FOLDER_PATH).exists() {
             return Ok(());
         }
