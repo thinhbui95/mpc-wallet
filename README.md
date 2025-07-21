@@ -11,17 +11,16 @@ mpc-wallet is a Rust-based wallet application implementing secure multi-party co
 - User-friendly terminal UI
 ## Details
 1. Create Wallet
-<img src="./assets/create_wallet.png>"
+<img src="./assets/create_wallet.png">
 
 2. Reconstruct Wallet
-<img src="./assets/reconstruct_wallet.png>"
+<img src="./assets/reconstruct_wallet.png">
 
 3. Interact Wallet
-<img src="./assets/interact.png"
+<img src="./assets/interact.png">
 
 4. Main menu
-<img src="./assets/main_menu.png>"
-
+<img src="./assets/main_menu.png">
 ## Getting Started
 
 1. **Install Rust**  
