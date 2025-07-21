@@ -1,7 +1,6 @@
-pub mod cores;
-pub mod wallet;
-pub mod ui;
-pub use wallet::*;
+mod ui;
+mod wallet;
+mod cores;
 fn main() {
-    ui::main_wallet_ui();
+    ui::ui::main_wallet_ui();
 }
