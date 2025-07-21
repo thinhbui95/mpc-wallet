@@ -108,7 +108,7 @@ fn reshare_wallet_ui() {
 
     // Create a vertical layout for the form
     let form = LinearLayout::vertical()
-        .child(TextView::new("Reconstruct Wallet"))
+        .child(TextView::new("Reshare"))
         .child(TextView::new("Enter shares (comma separated):"))
         .child(EditView::new().with_name("shares").fixed_width(50))
         .child(TextView::new("Enter threshold:"))
@@ -117,8 +117,8 @@ fn reshare_wallet_ui() {
     // Create a dialog with the form and buttons
     siv.add_layer(
         Dialog::around(form)
-            .title("Reconstruct Wallet")
-            .button("Reconstruct", |s| {
+            .title("Reshare Wallet")
+            .button("Reshare", |s| {
                 // Retrieve values from the form
                 let shares = s
                     .call_on_name("shares", |view: &mut EditView| view.get_content())

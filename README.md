@@ -9,17 +9,18 @@ mpc-wallet is a Rust-based wallet application implementing secure multi-party co
 - Generate Ethereum addresses and private keys from mnemonics
 - Interact with smart contracts and transfer tokens on EVM chains
 - User-friendly terminal UI
+
 ## Details
 1. Create Wallet
 <img src="./assets/create_wallet.png">
 
-2. Reconstruct Wallet
-<img src="./assets/reconstruct_wallet.png">
+2. Reshare Key
+<img src="./assets/reshare_key.png">
 
 3. Interact Wallet
 <img src="./assets/interact.png">
 
-4. Main menu
+4. Main Menu
 <img src="./assets/main_menu.png">
 ## Getting Started
 
