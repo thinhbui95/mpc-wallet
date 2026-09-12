@@ -12,7 +12,7 @@ export default defineConfig({
       ? {
           protocol: "ws",
           host,
-          port: 1421,
+          port: 1422,
         }
       : undefined,
     watch: {
