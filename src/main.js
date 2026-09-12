@@ -13,6 +13,12 @@ const tokensNetworkEl = document.getElementById("tokens-network");
 
 let rpcConfig = null;
 let walletsState = null;
+let tokensState = null;
+
+const interactTokenEl = document.getElementById("interact-token");
+const interactTokenHintEl = document.getElementById("interact-token-hint");
+const transferTokenBtn = document.getElementById("transfer-token-btn");
+const amountHintEl = document.getElementById("amount-hint");
 
 function isTauriRuntime() {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -46,7 +52,7 @@ function showView(name) {
   if (name === "wallets" || name === "menu" || name === "reshare" || name === "interact" || name === "tokens") {
     refreshWallets().catch((error) => setStatus(String(error), true));
   }
-  if (name === "tokens") {
+  if (name === "tokens" || name === "interact") {
     refreshTokens().catch((error) => setStatus(String(error), true));
   }
   if (name === "menu" || name === "interact") {
@@ -212,11 +218,62 @@ async function refreshNativeBalance() {
   return native;
 }
 
+function selectedInteractToken() {
+  const id = interactTokenEl.value;
+  if (!id || !tokensState?.tokens) return null;
+  return tokensState.tokens.find((token) => token.id === id) || null;
+}
+
+function updateInteractTokenHint() {
+  const token = selectedInteractToken();
+  if (!token) {
+    interactTokenHintEl.textContent = "Import tokens on the Tokens tab first.";
+    amountHintEl.textContent =
+      "Native: enter any amount (e.g. 0.01). Token: pick a token above first.";
+    transferTokenBtn.disabled = true;
+    return;
+  }
+  const balance = token.balanceError
+    ? "balance unavailable"
+    : `${token.balance} ${token.symbol}`;
+  interactTokenHintEl.textContent = `${token.address} · ${balance}`;
+  amountHintEl.textContent = `Native: any amount (e.g. 0.01). Token (${token.symbol}): whole units for now.`;
+  transferTokenBtn.disabled = false;
+}
+
+function populateInteractTokens(state) {
+  const previous = interactTokenEl.value;
+  interactTokenEl.innerHTML = "";
+
+  if (!state.tokens.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No tokens imported on this network";
+    interactTokenEl.appendChild(option);
+    updateInteractTokenHint();
+    return;
+  }
+
+  for (const token of state.tokens) {
+    const option = document.createElement("option");
+    option.value = token.id;
+    option.textContent = `${token.symbol} — ${token.name}`;
+    interactTokenEl.appendChild(option);
+  }
+
+  if (previous && state.tokens.some((token) => token.id === previous)) {
+    interactTokenEl.value = previous;
+  }
+  updateInteractTokenHint();
+}
+
 function renderTokens(state) {
+  tokensState = state;
   tokensWalletEl.textContent = state.activeWallet || "none";
   tokensNetworkEl.textContent = state.networkName || "none";
   renderNativeBalance(state.native);
   tokenCardsEl.innerHTML = "";
+  populateInteractTokens(state);
 
   if (!state.tokens.length) {
     tokenCardsEl.innerHTML = `<p class="lead">No tokens imported on this network yet.</p>`;
@@ -410,12 +467,15 @@ document.getElementById("refresh-native-balance-interact").addEventListener("cli
   }
 });
 
+document.getElementById("interact-token").addEventListener("change", () => {
+  updateInteractTokenHint();
+});
+
 document.getElementById("interact-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
   const submitter = event.submitter;
   const mode = submitter?.value || "token";
-  const contract = form.contract.value.trim();
   const to = form.to.value.trim();
   const amountRaw = form.amount.value.trim();
   const resultEl = document.getElementById("interact-result");
@@ -423,6 +483,16 @@ document.getElementById("interact-form").addEventListener("submit", async (event
   if (!amountRaw || Number(amountRaw) <= 0) {
     setStatus("Enter an amount greater than 0.", true);
     return;
+  }
+
+  let contract = "";
+  if (mode !== "native") {
+    const token = selectedInteractToken();
+    if (!token) {
+      setStatus("Select a token from the list (or import one on the Tokens tab).", true);
+      return;
+    }
+    contract = token.address;
   }
 
   setStatus(mode === "native" ? "Sending native transfer…" : "Sending token transfer…");
@@ -442,6 +512,9 @@ document.getElementById("interact-form").addEventListener("submit", async (event
     resultEl.textContent = `Transfer succeeded.\nTx Hash: ${result.txHash}`;
     setStatus("Transfer succeeded.");
     refreshNativeBalance().catch(() => {});
+    if (mode !== "native") {
+      refreshTokens().catch(() => {});
+    }
   } catch (error) {
     setStatus(String(error), true);
   }

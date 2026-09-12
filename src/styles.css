@@ -109,7 +109,8 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select {
   font: inherit;
   padding: 0.7rem 0.8rem;
   border: 1px solid var(--line);

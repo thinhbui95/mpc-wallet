@@ -161,9 +161,12 @@
           </p>
           <form id="interact-form" class="form">
             <label>
-              Contract address
-              <input name="contract" type="text" placeholder="0x…" spellcheck="false" />
+              Token
+              <select name="token" id="interact-token">
+                <option value="">Loading tokens…</option>
+              </select>
             </label>
+            <p class="meta" id="interact-token-hint">Import tokens on the Tokens tab first.</p>
             <label>
               Recipient address
               <input name="to" type="text" placeholder="0x…" spellcheck="false" required />
@@ -182,7 +185,7 @@
             </label>
             <p class="meta" id="amount-hint">Native: enter any amount (e.g. 0.01). Token: whole units for now.</p>
             <div class="row">
-              <button type="submit" name="mode" value="token" class="primary">Transfer Tokens</button>
+              <button type="submit" name="mode" value="token" class="primary" id="transfer-token-btn">Transfer Tokens</button>
               <button type="submit" name="mode" value="native" class="secondary">Transfer Native</button>
             </div>
           </form>
