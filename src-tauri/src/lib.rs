@@ -361,6 +361,15 @@ fn validate_address(address: &str) -> Result<(), String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            use tauri::Manager;
+            let data_dir = app
+                .path()
+                .app_data_dir()
+                .map_err(|e| format!("Failed to resolve app data dir: {e}"))?;
+            wallet::paths::init(data_dir)?;
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             create_wallet,
             import_wallet,

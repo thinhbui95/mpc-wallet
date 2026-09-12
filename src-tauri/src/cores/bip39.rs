@@ -26,12 +26,18 @@ pub struct Bip39Dictionary {
 }
 
 impl Bip39Dictionary {
+    /// Load the English BIP-39 wordlist embedded in the binary.
+    pub fn load_embedded() -> Result<Self> {
+        Self::from_text(include_str!("../../assets/bip39-en.txt"))
+    }
+
     /// Load the bip-39 dictionary from a file.
     pub fn load<P: AsRef<Path>>(dictionary_path: P) -> Result<Self> {
-        let words = read_to_string(dictionary_path)?
-            .lines()
-            .map(Into::into)
-            .collect::<Vec<_>>();
+        Self::from_text(&read_to_string(dictionary_path)?)
+    }
+
+    fn from_text(text: &str) -> Result<Self> {
+        let words = text.lines().map(Into::into).collect::<Vec<_>>();
         let length = words.len();
 
         Ok(Self {

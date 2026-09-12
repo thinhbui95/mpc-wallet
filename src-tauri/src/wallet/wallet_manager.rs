@@ -6,11 +6,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::cores::bip39::{Bip39Dictionary, Bip39Secret, Bip39Share};
 use crate::cores::shamir::ShamirSecretSharing;
+use crate::wallet::paths;
 use crate::wallet::utils::*;
-
-// When running via Tauri, cwd is `src-tauri/`, so keep shares at the repo root.
-const ROOT_PATH: &str = "../key_share";
-const ACTIVE_FILE: &str = "../key_share/active.json";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -35,7 +32,11 @@ fn normalize_address(address: &str) -> String {
 }
 
 fn root_dir() -> PathBuf {
-    PathBuf::from(ROOT_PATH)
+    paths::key_share_dir()
+}
+
+fn active_file() -> PathBuf {
+    paths::active_wallet_file()
 }
 
 fn wallet_dir(address: &str) -> PathBuf {
@@ -43,13 +44,14 @@ fn wallet_dir(address: &str) -> PathBuf {
 }
 
 fn load_dictionary() -> Result<Bip39Dictionary> {
-    Bip39Dictionary::load("assets/bip39-en.txt")
+    Bip39Dictionary::load_embedded()
         .map_err(|e| eyre!("Failed to load dictionary: {}", e))
 }
 
 fn ensure_root() -> Result<()> {
-    fs::create_dir_all(root_dir())
-        .map_err(|e| eyre!("Failed to create {}: {}", ROOT_PATH, e))
+    let dir = root_dir();
+    fs::create_dir_all(&dir)
+        .map_err(|e| eyre!("Failed to create {}: {}", dir.display(), e))
 }
 
 fn set_active_address(address: &str) -> Result<()> {
@@ -59,21 +61,23 @@ fn set_active_address(address: &str) -> Result<()> {
     };
     let json = serde_json::to_string_pretty(&payload)
         .map_err(|e| eyre!("Failed to serialize active wallet: {}", e))?;
-    fs::write(ACTIVE_FILE, json)
-        .map_err(|e| eyre!("Failed to write {}: {}", ACTIVE_FILE, e))?;
+    let path = active_file();
+    fs::write(&path, json)
+        .map_err(|e| eyre!("Failed to write {}: {}", path.display(), e))?;
     Ok(())
 }
 
 pub fn get_active_address() -> Result<Option<String>> {
-    if !Path::new(ACTIVE_FILE).exists() {
+    let path = active_file();
+    if !path.exists() {
         // Fall back to first wallet folder if any.
         let wallets = list_wallets()?;
         return Ok(wallets.into_iter().next().map(|w| w.address));
     }
-    let content = fs::read_to_string(ACTIVE_FILE)
-        .map_err(|e| eyre!("Failed to read {}: {}", ACTIVE_FILE, e))?;
+    let content = fs::read_to_string(&path)
+        .map_err(|e| eyre!("Failed to read {}: {}", path.display(), e))?;
     let active: ActiveWallet = serde_json::from_str(&content)
-        .map_err(|e| eyre!("Failed to parse {}: {}", ACTIVE_FILE, e))?;
+        .map_err(|e| eyre!("Failed to parse {}: {}", path.display(), e))?;
     Ok(Some(normalize_address(&active.active_address)))
 }
 
@@ -90,8 +94,9 @@ pub fn set_active_wallet(address: String) -> Result<String> {
 pub fn list_wallets() -> Result<Vec<WalletInfo>> {
     ensure_root()?;
     let mut wallets = Vec::new();
-    for entry in fs::read_dir(root_dir())
-        .map_err(|e| eyre!("Failed to read {}: {}", ROOT_PATH, e))?
+    let root = root_dir();
+    for entry in fs::read_dir(&root)
+        .map_err(|e| eyre!("Failed to read {}: {}", root.display(), e))?
     {
         let entry = entry.map_err(|e| eyre!("Failed to read directory entry: {}", e))?;
         let path = entry.path();

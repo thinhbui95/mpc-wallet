@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
 
-const CONFIG_PATH: &str = "../tokens_config.json";
+use super::paths;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -37,10 +38,8 @@ pub struct TokensConfig {
     pub tokens: Vec<StoredToken>,
 }
 
-use std::collections::HashMap;
-
 fn config_path() -> PathBuf {
-    PathBuf::from(CONFIG_PATH)
+    paths::tokens_config()
 }
 
 fn normalize_rpc_url(url: &str) -> String {

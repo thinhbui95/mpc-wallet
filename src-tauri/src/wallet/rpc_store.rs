@@ -3,7 +3,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
 
-const CONFIG_PATH: &str = "../rpc_config.json";
+use super::paths;
+
 const LEGACY_RPC_PATHS: &[&str] = &["src/wallet/RPC", "wallet/RPC"];
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -22,7 +23,7 @@ pub struct RpcConfig {
 }
 
 fn config_path() -> PathBuf {
-    PathBuf::from(CONFIG_PATH)
+    paths::rpc_config()
 }
 
 fn default_config() -> RpcConfig {
