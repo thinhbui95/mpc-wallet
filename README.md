@@ -1,34 +1,54 @@
 # mpc-wallet
 
-mpc-wallet is a Rust-based wallet application implementing secure multi-party computation (MPC) for BIP-39 mnemonic management and Ethereum wallet operations. It supports wallet creation, mnemonic splitting and reconstruction, Shamir secret sharing, and direct interaction with EVM-compatible blockchains.
+MPC wallet for BIP-39 mnemonic management and Ethereum operations. Shares are split with Shamir secret sharing. The desktop UI is built with **Tauri**.
 
 ## Features
 
 - Create and split BIP-39 mnemonics into shares
-- Reconstruct mnemonics from shares
-- Generate Ethereum addresses and private keys from mnemonics
-- Interact with smart contracts and transfer tokens on EVM chains
-- User-friendly terminal UI
+- Reshare existing wallets
+- Generate Ethereum addresses from mnemonics
+- Transfer ERC-20 tokens and native currency on EVM chains
 
-## Details
-1. Create Wallet
-<img src="./assets/create_wallet.png">
-
-2. Reshare Key
-<img src="./assets/reshare_key.png">
-
-3. Interact Wallet
-<img src="./assets/interact.png">
-
-4. Main Menu
-<img src="./assets/main_menu.png">
 ## Getting Started
 
-1. **Install Rust**  
-   [Install Rust](https://www.rust-lang.org/tools/install) if you haven't already.
+### Prerequisites
 
-2. **Clone the repository**
-   ```sh
-   git clone https://github.com/yourusername/mpc-wallet.git
-   cd mpc-wallet
-   ```
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Node.js](https://nodejs.org/) (18+)
+- On macOS: Xcode CLT
+
+### Install & run
+
+```sh
+npm install
+npm run tauri dev
+```
+
+### Build
+
+```sh
+npm run tauri build
+```
+
+## App structure
+
+- `src/` — Vite frontend (Create / Reshare / Networks / Interact)
+- `src-tauri/` — Rust backend (wallet logic + Tauri commands)
+- `key_share/` — share files written at the repo root
+- `rpc_config.json` — saved RPC endpoints + active selection (created on first run)
+- `tokens_config.json` — imported tokens grouped by network (`networkId`, `networkName`, `rpcUrl`)
+- `src-tauri/src/wallet/RPC` — legacy seed used only if no config file exists yet
+
+## Screenshots
+
+1. Create Wallet  
+<img src="./assets/create_wallet.png">
+
+2. Reshare Key  
+<img src="./assets/reshare_key.png">
+
+3. Interact Wallet  
+<img src="./assets/interact.png">
+
+4. Main Menu  
+<img src="./assets/main_menu.png">

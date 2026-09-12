@@ -16,7 +16,7 @@ pub mod fungible_token {
     // Generate Rust bindings for your contract
     abigen!(
         MyToken,
-        "./src/wallet/abi.json"
+        "./src/wallet/abi.json" // relative to src-tauri working directory
     );
     #[allow(dead_code)]
     pub fn get_contract(contract_address: &String, provider: Arc<Provider<Http>>) -> MyToken<Provider<Http>> {
@@ -56,6 +56,30 @@ pub mod fungible_token {
         Ok(decimals)
     }
 
+    pub async fn fetch_metadata(
+        provider: Arc<Provider<Http>>,
+        contract_address: &str,
+    ) -> Result<(String, String, u8), Box<dyn std::error::Error>> {
+        let contract_address: Address = contract_address.parse()?;
+        let contract = MyToken::new(contract_address, provider);
+        let name = contract.name().call().await?;
+        let symbol = contract.symbol().call().await?;
+        let decimals = contract.decimals().call().await?;
+        Ok((name, symbol, decimals))
+    }
+
+    pub async fn fetch_balance(
+        provider: Arc<Provider<Http>>,
+        contract_address: &str,
+        holder: &str,
+    ) -> Result<U256, Box<dyn std::error::Error>> {
+        let contract_address: Address = contract_address.parse()?;
+        let holder: Address = holder.parse()?;
+        let contract = MyToken::new(contract_address, provider);
+        let balance = contract.balance_of(holder).call().await?;
+        Ok(balance)
+    }
+
     pub async fn transfer(
         provider: Arc<Provider<Http>>,
         contract_address: &str,
@@ -82,6 +106,16 @@ pub mod fungible_token {
 
 pub mod native {
     use super::*;
+
+    pub async fn get_balance(
+        provider: Arc<Provider<Http>>,
+        address: &str,
+    ) -> Result<U256, Box<dyn std::error::Error>> {
+        let address: Address = address.parse()?;
+        let balance = provider.get_balance(address, None).await?;
+        Ok(balance)
+    }
+
     pub async fn transfer_native(
         provider: Arc<Provider<Http>>,
         wallet: LocalWallet,
