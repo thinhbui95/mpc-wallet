@@ -1,4 +1,10 @@
 /target
 /Cargo.lock
 /key_share
-
+/rpc_config.json
+/tokens_config.json
+/node_modules
+/dist
+/src-tauri/target
+/src-tauri/Cargo.lock
+.DS_Store

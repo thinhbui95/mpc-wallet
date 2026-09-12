@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MPC Wallet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <h1>MPC Wallet</h1>
+        <p class="subtitle">Shamir-shared mnemonic wallet</p>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <button class="tab active" data-view="menu">Home</button>
+        <button class="tab" data-view="create">Create</button>
+        <button class="tab" data-view="import">Import</button>
+        <button class="tab" data-view="wallets">Wallets</button>
+        <button class="tab" data-view="tokens">Tokens</button>
+        <button class="tab" data-view="reshare">Reshare</button>
+        <button class="tab" data-view="networks">Networks</button>
+        <button class="tab" data-view="interact">Interact</button>
+      </nav>
+
+      <main>
+        <section id="view-menu" class="view active">
+          <p class="lead">Select an action to manage your MPC wallet.</p>
+          <p class="meta">Active wallet: <code id="active-wallet-label">none</code></p>
+          <p class="meta">Native balance: <strong class="native-balance-text">—</strong></p>
+          <div class="actions">
+            <button class="primary" data-goto="create">Create Wallet</button>
+            <button class="primary" data-goto="import">Import Mnemonic</button>
+            <button class="primary" data-goto="wallets">My Wallets</button>
+            <button class="primary" data-goto="tokens">Import Tokens</button>
+            <button class="primary" data-goto="reshare">Reshare Wallet</button>
+            <button class="primary" data-goto="networks">Manage Networks</button>
+            <button class="primary" data-goto="interact">Interact with Blockchain</button>
+          </div>
+        </section>
+
+        <section id="view-create" class="view">
+          <h2>Create Wallet</h2>
+          <form id="create-form" class="form">
+            <label>
+              Number of shares
+              <input name="shares" type="number" min="1" max="255" value="3" required />
+            </label>
+            <label>
+              Threshold
+              <input name="threshold" type="number" min="1" max="255" value="2" required />
+            </label>
+            <button type="submit" class="primary">Create</button>
+          </form>
+          <pre id="create-result" class="result" hidden></pre>
+        </section>
+
+        <section id="view-import" class="view">
+          <h2>Import Mnemonic</h2>
+          <p class="lead">Paste an existing BIP-39 phrase. Shares are stored under key_share/&lt;address&gt;/.</p>
+          <form id="import-form" class="form">
+            <label>
+              Mnemonic
+              <textarea name="mnemonic" rows="4" placeholder="word1 word2 … word12" required spellcheck="false"></textarea>
+            </label>
+            <label>
+              Number of shares
+              <input name="shares" type="number" min="1" max="255" value="3" required />
+            </label>
+            <label>
+              Threshold
+              <input name="threshold" type="number" min="1" max="255" value="2" required />
+            </label>
+            <button type="submit" class="primary">Import &amp; Split</button>
+          </form>
+          <pre id="import-result" class="result" hidden></pre>
+        </section>
+
+        <section id="view-wallets" class="view">
+          <h2>Wallets</h2>
+          <p class="lead">Each created or imported key has its own address folder.</p>
+          <div id="wallet-cards" class="rpc-grid"></div>
+        </section>
+
+        <section id="view-tokens" class="view">
+          <h2>Tokens</h2>
+          <p class="lead">Import an ERC-20 contract to see name, symbol, and balance for the active wallet.</p>
+          <p class="meta">Active wallet: <code id="tokens-wallet">none</code></p>
+          <p class="meta">Network: <code id="tokens-network">none</code></p>
+          <article id="native-balance-card" class="rpc-card native-card">
+            <span class="badge">Native</span>
+            <h3>Native balance</h3>
+            <div class="token-balance native-balance-text" id="native-balance">—</div>
+            <div class="row">
+              <button type="button" class="secondary" id="refresh-native-balance">Refresh</button>
+            </div>
+          </article>
+          <div id="token-cards" class="rpc-grid"></div>
+          <form id="import-token-form" class="form rpc-add">
+            <h3>Import token</h3>
+            <label>
+              Contract address
+              <input name="address" type="text" placeholder="0x…" spellcheck="false" required />
+            </label>
+            <button type="submit" class="primary">Import</button>
+          </form>
+        </section>
+
+        <section id="view-reshare" class="view">
+          <h2>Reshare Wallet</h2>
+          <p class="meta">Active: <code id="reshare-active">none</code></p>
+          <form id="reshare-form" class="form">
+            <label>
+              New number of shares
+              <input name="shares" type="number" min="1" max="255" value="3" required />
+            </label>
+            <label>
+              New threshold
+              <input name="threshold" type="number" min="1" max="255" value="2" required />
+            </label>
+            <button type="submit" class="primary">Reshare</button>
+          </form>
+          <pre id="reshare-result" class="result" hidden></pre>
+        </section>
+
+        <section id="view-networks" class="view">
+          <h2>RPC Networks</h2>
+          <p class="lead">Add endpoints and pick which one Interact uses.</p>
+          <div id="rpc-cards" class="rpc-grid"></div>
+          <form id="add-rpc-form" class="form rpc-add">
+            <h3>Add RPC</h3>
+            <label>
+              Name
+              <input name="name" type="text" placeholder="Viction Testnet" required />
+            </label>
+            <label>
+              URL
+              <input name="url" type="url" placeholder="https://rpc-testnet.viction.xyz" required />
+            </label>
+            <button type="submit" class="primary">Save to disk</button>
+          </form>
+        </section>
+
+        <section id="view-interact" class="view">
+          <h2>Token Interaction</h2>
+          <p class="meta">
+            Active wallet: <code id="interact-wallet">none</code>
+          </p>
+          <p class="meta">
+            Native balance: <strong class="native-balance-text">—</strong>
+            <button type="button" class="linkish" id="refresh-native-balance-interact">Refresh</button>
+          </p>
+          <p class="meta">
+            Active RPC:
+            <code id="rpc-url">loading…</code>
+            <button type="button" class="linkish" data-goto="networks">Change</button>
+          </p>
+          <form id="interact-form" class="form">
+            <label>
+              Token
+              <select name="token" id="interact-token">
+                <option value="">Loading tokens…</option>
+              </select>
+            </label>
+            <p class="meta" id="interact-token-hint">Import tokens on the Tokens tab first.</p>
+            <label>
+              Recipient address
+              <input name="to" type="text" placeholder="0x…" spellcheck="false" required />
+            </label>
+            <label>
+              Amount
+              <input
+                name="amount"
+                type="text"
+                inputmode="decimal"
+                placeholder="0.01"
+                value="0.01"
+                required
+                spellcheck="false"
+              />
+            </label>
+            <p class="meta" id="amount-hint">Native: enter any amount (e.g. 0.01). Token: whole units for now.</p>
+            <div class="row">
+              <button type="submit" name="mode" value="token" class="primary" id="transfer-token-btn">Transfer Tokens</button>
+              <button type="submit" name="mode" value="native" class="secondary">Transfer Native</button>
+            </div>
+          </form>
+          <pre id="interact-result" class="result" hidden></pre>
+        </section>
+      </main>
+
+      <p id="status" class="status" role="status"></p>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
